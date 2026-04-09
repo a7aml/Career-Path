@@ -1,8 +1,14 @@
-import ollama
 import json
 import re
+from openai import OpenAI
 from app.core.config import settings
 from app.schemas.career import UserProfileInput
+
+_groq = OpenAI(
+    api_key=settings.GROQ_API_KEY,
+    base_url="https://api.groq.com/openai/v1",
+)
+
 
 def build_career_prompt(profile: UserProfileInput) -> str:
     return f"""You are a career advisor. Return ONLY valid JSON, nothing else.
@@ -47,37 +53,31 @@ Return this exact JSON structure:
 
 Customize the content above based on the student profile. Keep the exact same JSON structure and key names. Return ONLY the JSON object."""
 
+
 def parse_ai_response(response_text: str) -> dict:
     text = response_text.strip()
-
-    # Remove markdown blocks
     text = re.sub(r'```json', '', text)
     text = re.sub(r'```', '', text)
     text = text.strip()
 
-    # Extract JSON object
     start = text.find('{')
     end = text.rfind('}') + 1
     if start != -1 and end > start:
         text = text[start:end]
 
-    # Try direct parse
     try:
         return json.loads(text)
     except json.JSONDecodeError:
         pass
 
-    # Fix common issues: trailing commas before } or ]
     text = re.sub(r',\s*}', '}', text)
     text = re.sub(r',\s*]', ']', text)
 
-    # Try again
     try:
         return json.loads(text)
     except json.JSONDecodeError:
         pass
 
-    # Last resort: find each section individually
     result = {}
     for key in ["summary", "career_matches", "skills_gap", "roadmap", "project_ideas"]:
         pattern = rf'"{key}"\s*:\s*(\[.*?\]|".*?")'
@@ -85,7 +85,7 @@ def parse_ai_response(response_text: str) -> dict:
         if match:
             try:
                 result[key] = json.loads(match.group(1))
-            except:
+            except Exception:
                 result[key] = [] if key != "summary" else ""
 
     if result:
@@ -93,26 +93,25 @@ def parse_ai_response(response_text: str) -> dict:
 
     raise ValueError(f"Could not parse AI response: {text[:200]}")
 
+
 async def generate_career_guidance(profile: UserProfileInput) -> dict:
     prompt = build_career_prompt(profile)
 
-    response = ollama.chat(
-        model=settings.OLLAMA_MODEL,
+    response = _groq.chat.completions.create(
+        model=settings.GROQ_MODEL,
         messages=[
             {
                 "role": "system",
-                "content": "You are a career advisor. Always respond with valid JSON only. No explanations, no markdown."
+                "content": "You are a career advisor. Always respond with valid JSON only. No explanations, no markdown.",
             },
             {
                 "role": "user",
-                "content": prompt
-            }
+                "content": prompt,
+            },
         ],
-        options={
-            "temperature": 0.1,
-            "num_predict": 3000,
-        }
+        temperature=0.1,
+        max_tokens=3000,
     )
 
-    response_text = response['message']['content']
+    response_text = response.choices[0].message.content
     return parse_ai_response(response_text)

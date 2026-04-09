@@ -5,8 +5,9 @@ class Settings(BaseSettings):
     SUPABASE_KEY: str
     SECRET_KEY: str
     APP_ENV: str = "development"
-    OLLAMA_BASE_URL: str = "http://localhost:11434"
-    OLLAMA_MODEL: str = "llama3.2"
+    GROQ_API_KEY: str
+    GROQ_MODEL: str = "llama-3.2-90b-text-preview"
+    FRONTEND_URL: str = "http://127.0.0.1:5500"
 
     class Config:
         env_file = ".env"
