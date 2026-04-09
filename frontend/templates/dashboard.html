@@ -371,6 +371,8 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
+  const API_BASE = 'http://127.0.0.1:8000'  // ← change to production URL when deploying
+
   const SUPABASE_URL = 'https://pjgokiushwwnacfnfanr.supabase.co'
   const SUPABASE_KEY =  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBqZ29raXVzaHd3bmFjZm5mYW5yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUyNzgxODIsImV4cCI6MjA5MDg1NDE4Mn0.EKHOgbK1Yq4HSfs5ealk8L6gM0AoeWXHxPh38Qrl2_8'
 
@@ -515,7 +517,7 @@
         experience_level: level,
       }
 
-      const res = await fetch('http://127.0.0.1:8000/api/v1/career/generate', {
+      const res = await fetch(`${API_BASE}/api/v1/career/generate`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -713,7 +715,7 @@
     container.scrollTop = container.scrollHeight
 
     try {
-      const res = await fetch('http://127.0.0.1:8000/api/v1/chat/message', {
+      const res = await fetch(`${API_BASE}/api/v1/chat/message`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

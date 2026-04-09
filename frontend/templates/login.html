@@ -179,7 +179,7 @@
     const { error } = await client.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: 'http://127.0.0.1:5500/frontend/templates/dashboard.html'
+        redirectTo: `${window.location.origin}/frontend/templates/dashboard.html`
       }
     })
 
