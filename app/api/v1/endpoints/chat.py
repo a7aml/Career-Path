@@ -1,9 +1,14 @@
 from fastapi import APIRouter, HTTPException
+from openai import OpenAI
 from app.schemas.chat import ChatRequest, ChatResponse
-import ollama
 from app.core.config import settings
 
 router = APIRouter()
+
+_groq = OpenAI(
+    api_key=settings.GROQ_API_KEY,
+    base_url="https://api.groq.com/openai/v1",
+)
 
 
 @router.post("/message", response_model=ChatResponse)
@@ -21,12 +26,13 @@ async def chat_message(request: ChatRequest):
         for msg in request.messages:
             messages.append({"role": msg.role, "content": msg.content})
 
-        response = ollama.chat(
-            model=settings.OLLAMA_MODEL,
+        response = _groq.chat.completions.create(
+            model=settings.GROQ_MODEL,
             messages=messages,
-            options={"temperature": 0.7, "num_predict": 500},
+            temperature=0.7,
+            max_tokens=500,
         )
-        reply = response["message"]["content"].strip()
+        reply = response.choices[0].message.content.strip()
         return ChatResponse(reply=reply)
 
     except Exception as e:
