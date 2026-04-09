@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>CareerPath AI — Find Your Direction</title>
+<link rel="stylesheet" href="../static/css/style.css"/>
+<style>
+  /* HERO */
+  .hero { min-height: 100vh; display: flex; align-items: center; padding: 8rem 4rem 4rem; position: relative; overflow: hidden; }
+  .hero-bg {
+    position: absolute; inset: 0; z-index: 0;
+    background:
+      radial-gradient(ellipse 70% 60% at 75% 50%, #E8F4EF 0%, transparent 65%),
+      radial-gradient(ellipse 40% 50% at 15% 85%, #EBF2FB 0%, transparent 55%),
+      radial-gradient(ellipse 30% 30% at 85% 15%, #FEF5E7 0%, transparent 50%);
+  }
+  .hero-content { position: relative; z-index: 1; max-width: 620px; }
+  .hero-badge { display: inline-flex; align-items: center; gap: 0.5rem; background: var(--accent-light); color: var(--accent); font-size: 0.8rem; font-weight: 500; padding: 0.35rem 0.875rem; border-radius: 100px; margin-bottom: 2rem; border: 1px solid #C3E6D5; }
+  .hero-badge::before { content: ''; width: 6px; height: 6px; background: var(--accent-mid); border-radius: 50%; animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.6;transform:scale(0.8)} }
+  h1 { font-family: var(--font-display); font-size: clamp(3rem, 5vw, 4.5rem); font-weight: 300; line-height: 1.08; letter-spacing: -0.035em; color: var(--charcoal); margin-bottom: 1.5rem; }
+  h1 em { font-style: italic; color: var(--accent); }
+  .hero-sub { font-size: 1.1rem; color: var(--mid); font-weight: 300; line-height: 1.75; max-width: 500px; margin-bottom: 2.5rem; }
+  .hero-actions { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; margin-bottom: 3.5rem; }
+  .hero-stats { display: flex; gap: 2.5rem; padding-top: 2.5rem; border-top: 1px solid var(--light-border); }
+  .stat-num { font-family: var(--font-display); font-size: 1.8rem; font-weight: 600; color: var(--charcoal); letter-spacing: -0.03em; display: block; line-height: 1.1; }
+  .stat-label { font-size: 0.78rem; color: var(--mid); font-weight: 300; margin-top: 0.2rem; }
+
+  /* FLOATING CARDS */
+  .hero-visual { position: absolute; right: 5rem; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 1.25rem; z-index: 1; }
+  .float-card { background: white; border: 1px solid var(--light-border); border-radius: 18px; padding: 1.1rem 1.35rem; width: 290px; box-shadow: var(--shadow-md); }
+  .float-card:nth-child(1) { transform: rotate(-2deg); animation: floatCard 4s ease-in-out infinite; }
+  .float-card:nth-child(2) { transform: rotate(1.5deg); margin-left: 2rem; animation: floatCard 4s ease-in-out infinite 1.3s; }
+  .float-card:nth-child(3) { transform: rotate(-1deg); animation: floatCard 4s ease-in-out infinite 2.6s; }
+  @keyframes floatCard { 0%,100%{transform:rotate(var(--r,0deg)) translateY(0)} 50%{transform:rotate(var(--r,0deg)) translateY(-6px)} }
+  .float-card:nth-child(1) { --r: -2deg; }
+  .float-card:nth-child(2) { --r: 1.5deg; }
+  .float-card:nth-child(3) { --r: -1deg; }
+  .fc-label { font-size: 0.68rem; font-weight: 500; letter-spacing: 0.07em; text-transform: uppercase; color: var(--accent); margin-bottom: 0.4rem; }
+  .fc-title { font-size: 0.95rem; font-weight: 500; color: var(--charcoal); }
+  .fc-sub { font-size: 0.78rem; color: var(--mid); margin-top: 0.2rem; }
+  .fc-bar { height: 5px; background: var(--light-border); border-radius: 3px; margin-top: 0.85rem; overflow: hidden; }
+  .fc-fill { height: 100%; border-radius: 3px; }
+  .fc-meta { display: flex; justify-content: space-between; font-size: 0.72rem; color: var(--mid); margin-top: 0.35rem; }
+  .fc-meta strong { color: var(--accent); }
+  .fc-chips { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.85rem; }
+
+  /* HOW IT WORKS */
+  .how { background: var(--cream); padding: 7rem 4rem; }
+  .steps-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 1.5rem; margin-top: 3.5rem; }
+  .step { padding: 1.75rem; background: white; border-radius: var(--radius-lg); border: 1px solid var(--light-border); transition: transform 0.25s, box-shadow 0.25s; }
+  .step:hover { transform: translateY(-5px); box-shadow: var(--shadow-lg); }
+  .step-num { font-family: var(--font-display); font-size: 2.75rem; font-weight: 300; color: var(--light-border); line-height: 1; margin-bottom: 1.25rem; }
+  .step-icon { width: 42px; height: 42px; background: var(--accent-light); border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-bottom: 1rem; }
+  .step-icon svg { width: 18px; height: 18px; stroke: var(--accent); fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+  .step h3 { font-size: 1rem; font-weight: 500; margin-bottom: 0.5rem; }
+  .step p { font-size: 0.85rem; color: var(--mid); line-height: 1.65; font-weight: 300; }
+
+  /* FEATURES */
+  .features { padding: 7rem 4rem; }
+  .features-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin-top: 3.5rem; }
+  .feat { background: var(--cream); border-radius: var(--radius-lg); padding: 2rem; border: 1px solid var(--light-border); transition: transform 0.25s; }
+  .feat:hover { transform: translateY(-4px); }
+  .feat.wide { grid-column: span 2; display: grid; grid-template-columns: 1fr 1fr; gap: 2.5rem; align-items: start; }
+  .feat-icon { width: 46px; height: 46px; background: white; border-radius: 11px; display: flex; align-items: center; justify-content: center; margin-bottom: 1.25rem; border: 1px solid var(--light-border); }
+  .feat-icon svg { width: 20px; height: 20px; stroke: var(--accent); fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+  .feat h3 { font-size: 1.05rem; font-weight: 500; margin-bottom: 0.4rem; }
+  .feat p { font-size: 0.85rem; color: var(--mid); line-height: 1.65; font-weight: 300; }
+  .feat-preview { background: white; border-radius: var(--radius-md); padding: 1rem 1.25rem; border: 1px solid var(--light-border); margin-top: 1.25rem; }
+  .prev-row { display: flex; align-items: center; justify-content: space-between; padding: 0.45rem 0; border-bottom: 1px solid var(--light-border); font-size: 0.82rem; }
+  .prev-row:last-child { border-bottom: none; }
+  .prev-lbl { color: var(--mid); }
+  .prev-val { font-weight: 500; }
+  .match-high { color: var(--accent); }
+  .match-mid { color: #935116; }
+
+  /* TESTIMONIALS */
+  .testimonials { padding: 7rem 4rem; background: white; }
+  .test-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 1.5rem; margin-top: 3rem; }
+  .test-card { background: var(--cream); border: 1px solid var(--light-border); border-radius: var(--radius-lg); padding: 1.75rem; }
+  .test-quote { font-family: var(--font-display); font-size: 1rem; font-weight: 300; font-style: italic; line-height: 1.65; color: var(--charcoal); margin-bottom: 1.5rem; }
+  .test-author { display: flex; align-items: center; gap: 0.75rem; }
+  .test-av { width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 500; color: white; flex-shrink: 0; }
+  .test-name { font-size: 0.875rem; font-weight: 500; }
+  .test-role { font-size: 0.78rem; color: var(--mid); }
+
+  /* FOOTER */
+  footer { background: var(--charcoal); color: white; padding: 3rem 4rem; display: flex; align-items: center; justify-content: space-between; }
+  .footer-logo { font-family: var(--font-display); font-size: 1.1rem; font-weight: 600; letter-spacing: -0.02em; }
+  .footer-logo span { color: var(--accent-mid); }
+  .footer-links { display: flex; gap: 2rem; }
+  .footer-links a { font-size: 0.8rem; color: rgba(255,255,255,0.45); text-decoration: none; transition: color 0.2s; }
+  .footer-links a:hover { color: white; }
+  .footer-copy { font-size: 0.78rem; color: rgba(255,255,255,0.28); }
+
+  @media(max-width:1100px){ .hero-visual{display:none} .steps-grid{grid-template-columns:1fr 1fr} .feat.wide{grid-column:span 1;grid-template-columns:1fr} .features-grid{grid-template-columns:1fr} }
+  @media(max-width:768px){ .hero{padding:7rem 1.5rem 3rem} .how,.features,.testimonials{padding:4rem 1.5rem} .cta-wrap{padding:0 1.5rem 4rem} .form-box{padding:2rem 1.5rem} .career-form{grid-template-columns:1fr} .fg.full,.form-footer{grid-column:span 1} .steps-grid,.test-grid{grid-template-columns:1fr} .hero-stats{gap:1.5rem} footer{flex-direction:column;gap:1.5rem;text-align:center} .footer-links{flex-wrap:wrap;justify-content:center} }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-logo">CareerPath <span>AI</span></a>
+  <div class="nav-links">
+    <a href="#how" class="hide-mobile">How it works</a>
+    <a href="#features" class="hide-mobile">Features</a>
+    <a href="#testimonials" class="hide-mobile">Stories</a>
+    <a href="login.html" class="btn-nav">Get Started</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-content">
+    <div class="hero-badge fade-up">AI-powered career guidance</div>
+    <h1 class="fade-up" style="animation-delay:0.1s">Find the career path <em>made for you</em></h1>
+    <p class="hero-sub fade-up" style="animation-delay:0.2s">Stop guessing. CareerPath AI analyzes your skills, major, and goals to give you a personalized roadmap — from where you are to where you want to be.</p>
+    <div class="hero-actions fade-up" style="animation-delay:0.3s">
+      <a href="login.html" class="btn-primary">
+        Start for free
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+      <a href="#how" class="btn-secondary">See how it works</a>
+    </div>
+    <div class="hero-stats fade-up" style="animation-delay:0.4s">
+      <div><span class="stat-num">50+</span><span class="stat-label">Career paths mapped</span></div>
+      <div><span class="stat-num">2 min</span><span class="stat-label">To your first roadmap</span></div>
+      <div><span class="stat-num">Free</span><span class="stat-label">To get started</span></div>
+    </div>
+  </div>
+  <div class="hero-visual">
+    <div class="float-card">
+      <div class="fc-label">Career Match</div>
+      <div class="fc-title">Data Scientist</div>
+      <div class="fc-sub">Based on CS major & interests</div>
+      <div class="fc-bar"><div class="fc-fill" style="width:87%;background:var(--accent-mid)"></div></div>
+      <div class="fc-meta"><span>Match score</span><strong>87%</strong></div>
+    </div>
+    <div class="float-card">
+      <div class="fc-label">Skills Gap</div>
+      <div class="fc-title">Your Skill Status</div>
+      <div class="fc-chips">
+        <span class="chip green">Python ✓</span>
+        <span class="chip green">SQL ✓</span>
+        <span class="chip">TensorFlow</span>
+        <span class="chip">MLOps</span>
+        <span class="chip green">Statistics ✓</span>
+      </div>
+    </div>
+    <div class="float-card">
+      <div class="fc-label">Roadmap · Step 1 of 6</div>
+      <div class="fc-title">Learn ML Basics</div>
+      <div class="fc-sub">3 weeks · Beginner friendly</div>
+      <div class="fc-bar" style="margin-top:0.85rem"><div class="fc-fill" style="width:35%;background:var(--amber)"></div></div>
+      <div class="fc-meta"><span>Progress</span><strong style="color:var(--amber)">35%</strong></div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how" id="how">
+  <div class="section-label">How it works</div>
+  <h2 class="section-title">From confused to clear<br>in four steps</h2>
+  <p class="section-sub">No career counselor needed. Answer a few questions and let the AI do the rest.</p>
+  <div class="steps-grid">
+    <div class="step"><div class="step-num">01</div><div class="step-icon"><svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></div><h3>Tell us about yourself</h3><p>Share your major, current skills, interests, and career goals in a simple form.</p></div>
+    <div class="step"><div class="step-num">02</div><div class="step-icon"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></div><h3>AI analyzes your profile</h3><p>Our AI matches your profile against dozens of career paths to find your best fits.</p></div>
+    <div class="step"><div class="step-num">03</div><div class="step-icon"><svg viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg></div><h3>Get your roadmap</h3><p>Receive a step-by-step learning plan with resources, timelines, and project ideas.</p></div>
+    <div class="step"><div class="step-num">04</div><div class="step-icon"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div><h3>Start building</h3><p>Follow your personalized plan, track progress, and land your dream role.</p></div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="features" id="features">
+  <div class="section-label">Features</div>
+  <h2 class="section-title">Everything you need<br>to navigate your career</h2>
+  <div class="features-grid">
+    <div class="feat wide">
+      <div>
+        <div class="feat-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg></div>
+        <h3>Career Path Generator</h3>
+        <p>Input your background and get ranked career suggestions with match scores. See exactly why each career fits your unique profile.</p>
+        <div class="feat-preview">
+          <div class="prev-row"><span class="prev-lbl">Data Scientist</span><span class="prev-val match-high">87% match</span></div>
+          <div class="prev-row"><span class="prev-lbl">ML Engineer</span><span class="prev-val match-high">81% match</span></div>
+          <div class="prev-row"><span class="prev-lbl">Data Analyst</span><span class="prev-val match-mid">76% match</span></div>
+        </div>
+      </div>
+      <div>
+        <div class="feat-icon"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
+        <h3>Skills Gap Analyzer</h3>
+        <p>Know exactly what you have and what you're missing. No more guessing which courses to take next.</p>
+        <div class="feat-preview">
+          <div class="prev-row"><span class="prev-lbl">Python</span><span class="tag-have">Have it</span></div>
+          <div class="prev-row"><span class="prev-lbl">TensorFlow</span><span class="tag-miss">Missing</span></div>
+          <div class="prev-row"><span class="prev-lbl">SQL</span><span class="tag-have">Have it</span></div>
+          <div class="prev-row"><span class="prev-lbl">MLOps</span><span class="tag-miss">Missing</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="feat"><div class="feat-icon"><svg viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg></div><h3>Roadmap Generator</h3><p>Step-by-step learning plan with curated resources, estimated timelines, and clear milestones for your chosen career.</p></div>
+    <div class="feat"><div class="feat-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div><h3>Project Ideas Generator</h3><p>Learn by building. Get personalized project ideas that target your missing skills and impress future employers.</p></div>
+    <div class="feat"><div class="feat-icon"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="9" height="18" rx="1"/><rect x="13" y="3" width="9" height="18" rx="1"/></svg></div><h3>Career Comparison</h3><p>Compare two paths side by side — salary outlook, difficulty, time to land a job, and skill overlap.</p></div>
+    <div class="feat"><div class="feat-icon"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div><h3>Chat Career Advisor</h3><p>Ask anything. Your AI advisor is available 24/7 to answer questions and help you stay on track.</p></div>
+  </div>
+</section>
+
+
+
+<!-- TESTIMONIALS -->
+<section class="testimonials" id="testimonials">
+  <div class="section-label">Student stories</div>
+  <h2 class="section-title">Real students, real results</h2>
+  <div class="test-grid">
+    <div class="test-card">
+      <p class="test-quote">"I had no idea what to do with my CS degree. CareerPath AI showed me the exact steps to become a data scientist — I landed my first role in 8 months."</p>
+      <div class="test-author"><div class="test-av" style="background:#2D6A4F">SA</div><div><div class="test-name">Sara A.</div><div class="test-role">Data Scientist at a tech startup</div></div></div>
+    </div>
+    <div class="test-card">
+      <p class="test-quote">"The skills gap analyzer was a game changer. I stopped taking random courses and focused only on what mattered. Saved me months of wasted time."</p>
+      <div class="test-author"><div class="test-av" style="background:#1A5276">KM</div><div><div class="test-name">Khalid M.</div><div class="test-role">Backend Developer, fresh graduate</div></div></div>
+    </div>
+    <div class="test-card">
+      <p class="test-quote">"I was torn between UX and product management. The career comparison feature made the decision crystal clear. Best tool I've used as a student."</p>
+      <div class="test-author"><div class="test-av" style="background:#7D3C98">LR</div><div><div class="test-name">Laila R.</div><div class="test-role">Product Manager at a SaaS company</div></div></div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-logo">CareerPath <span>AI</span></div>
+  <div class="footer-links">
+    <a href="#">About</a><a href="#">Features</a><a href="#">Privacy</a><a href="#">Terms</a><a href="#">Contact</a>
+  </div>
+  <div class="footer-copy">© 2025 CareerPath AI. All rights reserved.</div>
+</footer>
+
+<script>
+  function handleSubmit(e) {
+    e.preventDefault();
+    window.location.href = 'login.html';
+  }
+</script>
+</body>
+</html>

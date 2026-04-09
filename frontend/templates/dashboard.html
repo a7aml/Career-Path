@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Dashboard — CareerPath AI</title>
+<link rel="stylesheet" href="../static/css/style.css"/><style>
+  body { background: var(--cream); padding-top: 64px; }
+
+  /* SIDEBAR NAV */
+  .app-layout { display: flex; min-height: calc(100vh - 64px); }
+
+  .sidebar {
+    width: 240px;
+    flex-shrink: 0;
+    background: white;
+    border-right: 1px solid var(--light-border);
+    padding: 1.5rem 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    position: sticky;
+    top: 64px;
+    height: calc(100vh - 64px);
+    overflow-y: auto;
+  }
+  .sidebar-label { font-size: 0.68rem; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--mid); padding: 0.5rem 0.75rem; margin-top: 0.75rem; }
+  .sidebar-label:first-child { margin-top: 0; }
+  .nav-item {
+    display: flex; align-items: center; gap: 0.75rem;
+    padding: 0.65rem 0.875rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.875rem;
+    color: var(--mid);
+    text-decoration: none;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+    border: none; background: none; font-family: var(--font-body);
+    width: 100%; text-align: left;
+  }
+  .nav-item:hover { background: var(--cream); color: var(--charcoal); }
+  .nav-item.active { background: var(--accent-light); color: var(--accent); font-weight: 500; }
+  .nav-item .icon { font-size: 1rem; width: 20px; text-align: center; flex-shrink: 0; }
+  .nav-badge { margin-left: auto; background: var(--accent); color: white; font-size: 0.65rem; padding: 0.1rem 0.45rem; border-radius: 100px; font-weight: 500; }
+  .sidebar-user {
+    margin-top: auto; padding-top: 1rem;
+    border-top: 1px solid var(--light-border);
+    display: flex; align-items: center; gap: 0.75rem;
+    padding: 1rem 0.875rem 0.25rem;
+  }
+  .user-av { width: 32px; height: 32px; border-radius: 50%; background: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 0.78rem; font-weight: 500; color: white; flex-shrink: 0; }
+  .user-name { font-size: 0.82rem; font-weight: 500; color: var(--charcoal); }
+  .user-plan { font-size: 0.72rem; color: var(--mid); }
+
+  /* MAIN CONTENT */
+  .main { flex: 1; padding: 2rem 2.5rem; max-width: 1000px; }
+
+  /* WELCOME BANNER */
+  .welcome-banner {
+    background: var(--charcoal);
+    border-radius: var(--radius-lg);
+    padding: 2rem 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 2rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .welcome-banner::before { content: ''; position: absolute; right: -60px; top: -60px; width: 250px; height: 250px; border-radius: 50%; background: radial-gradient(circle, rgba(82,183,136,0.15) 0%, transparent 70%); }
+  .wb-text h2 { font-family: var(--font-display); font-size: 1.6rem; font-weight: 300; color: white; letter-spacing: -0.025em; margin-bottom: 0.35rem; }
+  .wb-text h2 em { font-style: italic; color: var(--accent-mid); }
+  .wb-text p { font-size: 0.875rem; color: rgba(255,255,255,0.5); font-weight: 300; }
+  .wb-action { position: relative; z-index: 1; }
+  .btn-generate { background: var(--accent-mid); color: white; padding: 0.75rem 1.75rem; border-radius: 100px; font-size: 0.9rem; font-weight: 500; border: none; cursor: pointer; font-family: var(--font-body); transition: background 0.2s; display: flex; align-items: center; gap: 0.5rem; white-space: nowrap; }
+  .btn-generate:hover { background: var(--accent); }
+
+  /* QUICK STATS */
+  .stats-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 1rem; margin-bottom: 2rem; }
+  .stat-card { background: white; border: 1px solid var(--light-border); border-radius: var(--radius-md); padding: 1.25rem 1.5rem; }
+  .stat-card .s-label { font-size: 0.75rem; color: var(--mid); margin-bottom: 0.35rem; }
+  .stat-card .s-val { font-family: var(--font-display); font-size: 1.6rem; font-weight: 400; color: var(--charcoal); letter-spacing: -0.025em; line-height: 1.1; }
+  .stat-card .s-sub { font-size: 0.72rem; color: var(--mid); margin-top: 0.2rem; }
+  .stat-card .s-val.green { color: var(--accent); }
+  .stat-card .s-val.blue { color: var(--blue-text); }
+
+  /* CAREER INPUT FORM */
+  .form-card { background: white; border: 1px solid var(--light-border); border-radius: var(--radius-lg); padding: 2rem; margin-bottom: 2rem; }
+  .form-card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.75rem; }
+  .form-card-header h3 { font-size: 1.1rem; font-weight: 500; color: var(--charcoal); }
+  .form-card-header p { font-size: 0.82rem; color: var(--mid); margin-top: 0.2rem; }
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+  .fg { display: flex; flex-direction: column; gap: 0.4rem; }
+  .fg.full { grid-column: span 2; }
+  .fg label { font-size: 0.82rem; color: var(--charcoal); font-weight: 400; }
+  .fg input, .fg select, .fg textarea {
+    padding: 0.7rem 1rem;
+    border: 1.5px solid var(--light-border);
+    border-radius: var(--radius-sm);
+    font-size: 0.9rem;
+    font-family: var(--font-body);
+    color: var(--charcoal);
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    background: white;
+    width: 100%;
+  }
+  .fg input::placeholder, .fg textarea::placeholder { color: #BDBDBD; }
+  .fg input:focus, .fg select:focus, .fg textarea:focus { border-color: var(--accent-mid); box-shadow: 0 0 0 3px rgba(82,183,136,0.1); }
+  .fg textarea { resize: vertical; min-height: 75px; }
+  .sk-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.5rem; }
+  .sk-tag { background: var(--accent-light); color: var(--accent); border: 1px solid #C3E6D5; font-size: 0.78rem; padding: 0.25rem 0.65rem; border-radius: 100px; display: flex; align-items: center; gap: 0.35rem; cursor: pointer; transition: background 0.15s; }
+  .sk-tag:hover { background: #D4EDDF; }
+  .form-actions { grid-column: span 2; display: flex; justify-content: flex-end; gap: 0.75rem; align-items: center; margin-top: 0.25rem; }
+  .hint { font-size: 0.78rem; color: var(--mid); }
+
+  /* RESULTS SECTION */
+  .results-section { display: none; }
+  .results-section.visible { display: block; animation: fadeInUp 0.5s ease; }
+  .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem; }
+  .section-header h3 { font-size: 1.1rem; font-weight: 500; }
+  .section-header a { font-size: 0.82rem; color: var(--accent); text-decoration: none; }
+
+  /* CAREER CARDS */
+  .career-cards { display: flex; flex-direction: column; gap: 0.875rem; margin-bottom: 2rem; }
+  .career-card {
+    background: white;
+    border: 1.5px solid var(--light-border);
+    border-radius: var(--radius-md);
+    padding: 1.25rem 1.5rem;
+    display: flex; align-items: center; gap: 1.25rem;
+    cursor: pointer;
+    transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
+  }
+  .career-card:hover { border-color: var(--accent-mid); box-shadow: 0 4px 16px rgba(82,183,136,0.1); transform: translateX(3px); }
+  .career-card.selected { border-color: var(--accent); background: var(--accent-light); }
+  .cc-score { width: 52px; height: 52px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-size: 1rem; font-weight: 400; flex-shrink: 0; }
+  .cc-score.high { background: var(--accent-light); color: var(--accent); border: 2px solid #C3E6D5; }
+  .cc-score.mid { background: #FEF5E7; color: #935116; border: 2px solid #FAD7A0; }
+  .cc-info { flex: 1; }
+  .cc-title { font-size: 1rem; font-weight: 500; color: var(--charcoal); margin-bottom: 0.2rem; }
+  .cc-desc { font-size: 0.82rem; color: var(--mid); font-weight: 300; }
+  .cc-chips { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-top: 0.5rem; }
+  .cc-bar { width: 80px; flex-shrink: 0; }
+  .cc-bar-track { height: 5px; background: var(--light-border); border-radius: 3px; overflow: hidden; margin-top: 0.35rem; }
+  .cc-bar-fill { height: 100%; border-radius: 3px; background: var(--accent-mid); }
+  .cc-bar-label { font-size: 0.72rem; color: var(--mid); text-align: right; }
+  .cc-arrow { color: var(--mid); font-size: 1.1rem; flex-shrink: 0; transition: transform 0.2s; }
+  .career-card:hover .cc-arrow { transform: translateX(3px); color: var(--accent); }
+
+  /* TWO COL RESULTS */
+  .results-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin-bottom: 2rem; }
+
+  /* SKILLS GAP */
+  .skills-gap-card { background: white; border: 1px solid var(--light-border); border-radius: var(--radius-lg); padding: 1.5rem; }
+  .sg-row { display: flex; align-items: center; justify-content: space-between; padding: 0.6rem 0; border-bottom: 1px solid var(--light-border); }
+  .sg-row:last-child { border-bottom: none; }
+  .sg-skill { font-size: 0.875rem; color: var(--charcoal); }
+  .sg-priority { font-size: 0.72rem; color: var(--mid); margin-top: 0.1rem; }
+
+  /* ROADMAP */
+  .roadmap-card { background: white; border: 1px solid var(--light-border); border-radius: var(--radius-lg); padding: 1.5rem; }
+  .rm-step { display: flex; gap: 1rem; padding-bottom: 1.25rem; position: relative; }
+  .rm-step:not(:last-child)::before { content: ''; position: absolute; left: 15px; top: 32px; bottom: 0; width: 1px; background: var(--light-border); }
+  .rm-num { width: 32px; height: 32px; border-radius: 50%; background: var(--accent-light); border: 2px solid #C3E6D5; display: flex; align-items: center; justify-content: center; font-size: 0.78rem; font-weight: 500; color: var(--accent); flex-shrink: 0; position: relative; z-index: 1; }
+  .rm-num.done { background: var(--accent); border-color: var(--accent); color: white; }
+  .rm-content { flex: 1; padding-top: 0.3rem; }
+  .rm-title { font-size: 0.9rem; font-weight: 500; color: var(--charcoal); margin-bottom: 0.2rem; }
+  .rm-meta { font-size: 0.78rem; color: var(--mid); display: flex; gap: 0.75rem; }
+
+  /* PROJECT IDEAS */
+  .projects-card { background: white; border: 1px solid var(--light-border); border-radius: var(--radius-lg); padding: 1.5rem; }
+  .proj-item { padding: 0.875rem 0; border-bottom: 1px solid var(--light-border); }
+  .proj-item:last-child { border-bottom: none; }
+  .proj-title { font-size: 0.9rem; font-weight: 500; color: var(--charcoal); margin-bottom: 0.3rem; }
+  .proj-desc { font-size: 0.8rem; color: var(--mid); line-height: 1.55; font-weight: 300; }
+  .proj-chips { display: flex; gap: 0.35rem; flex-wrap: wrap; margin-top: 0.5rem; }
+
+  /* LOADING */
+  .loading-state { text-align: center; padding: 3rem 2rem; }
+  .loading-spinner { width: 40px; height: 40px; border: 3px solid var(--light-border); border-top-color: var(--accent-mid); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 1rem; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-state p { font-size: 0.9rem; color: var(--mid); }
+  .loading-state .load-step { font-size: 0.8rem; color: var(--accent); margin-top: 0.5rem; }
+
+  /* CHAT PANEL */
+  .chat-card { background: white; border: 1px solid var(--light-border); border-radius: var(--radius-lg); overflow: hidden; margin-bottom: 2rem; }
+  .chat-header { padding: 1rem 1.5rem; border-bottom: 1px solid var(--light-border); display: flex; align-items: center; gap: 0.75rem; }
+  .chat-dot { width: 8px; height: 8px; background: var(--accent-mid); border-radius: 50%; animation: pulse 2s infinite; }
+  .chat-title { font-size: 0.9rem; font-weight: 500; }
+  .chat-sub { font-size: 0.78rem; color: var(--mid); margin-left: auto; }
+  .chat-messages { padding: 1.25rem 1.5rem; display: flex; flex-direction: column; gap: 1rem; max-height: 320px; overflow-y: auto; }
+  .msg { display: flex; gap: 0.75rem; }
+  .msg.user { flex-direction: row-reverse; }
+  .msg-av { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.72rem; font-weight: 500; flex-shrink: 0; }
+  .msg-av.ai { background: var(--accent-light); color: var(--accent); border: 1px solid #C3E6D5; }
+  .msg-av.user { background: var(--charcoal); color: white; }
+  .msg-bubble { max-width: 75%; padding: 0.65rem 0.875rem; border-radius: 12px; font-size: 0.85rem; line-height: 1.55; }
+  .msg.ai .msg-bubble { background: var(--cream); color: var(--charcoal); border: 1px solid var(--light-border); border-bottom-left-radius: 4px; }
+  .msg.user .msg-bubble { background: var(--charcoal); color: white; border-bottom-right-radius: 4px; }
+  .chat-input-row { padding: 1rem 1.5rem; border-top: 1px solid var(--light-border); display: flex; gap: 0.75rem; }
+  .chat-input { flex: 1; padding: 0.65rem 1rem; border: 1.5px solid var(--light-border); border-radius: 100px; font-size: 0.875rem; font-family: var(--font-body); outline: none; transition: border-color 0.2s; }
+  .chat-input:focus { border-color: var(--accent-mid); }
+  .btn-send { background: var(--accent); color: white; border: none; border-radius: 100px; padding: 0.65rem 1.25rem; font-size: 0.85rem; font-weight: 500; cursor: pointer; font-family: var(--font-body); transition: background 0.2s; }
+  .btn-send:hover { background: var(--accent-dark); }
+
+  @media(max-width:900px){ .stats-row{grid-template-columns:1fr 1fr} .results-grid{grid-template-columns:1fr} .form-grid{grid-template-columns:1fr} .fg.full,.form-actions{grid-column:span 1} }
+  @media(max-width:768px){ .sidebar{display:none} .main{padding:1.5rem} .welcome-banner{flex-direction:column;gap:1.25rem;align-items:flex-start} .stats-row{grid-template-columns:1fr 1fr} }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="landingPage.html" class="nav-logo">CareerPath <span>AI</span></a>
+  <div class="nav-links">
+    <a href="#" class="hide-mobile">Docs</a>
+<button class="btn-ghost hide-mobile" onclick="signOut()">Sign out</button>    <div style="width:32px;height:32px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:0.78rem;font-weight:500;color:white;cursor:pointer">AH</div>
+  </div>
+</nav>
+
+<div class="app-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-label">Main</div>
+    <button class="nav-item active" onclick="showSection('home')"><span class="icon">🏠</span> Dashboard</button>
+    <button class="nav-item" onclick="showSection('careers')"><span class="icon">🧭</span> Career Paths</button>
+    <button class="nav-item" onclick="showSection('roadmap')"><span class="icon">🗺️</span> My Roadmap</button>
+    <button class="nav-item" onclick="showSection('skills')"><span class="icon">🔍</span> Skills Gap</button>
+    <button class="nav-item" onclick="showSection('projects')"><span class="icon">💡</span> Project Ideas</button>
+
+    <div class="sidebar-label">Advanced</div>
+    <button class="nav-item" onclick="showSection('compare')"><span class="icon">⚖️</span> Compare Careers</button>
+    <button class="nav-item" onclick="showSection('timeline')"><span class="icon">📅</span> Timeline</button>
+    <button class="nav-item" onclick="showSection('chat')"><span class="icon">💬</span> Career Advisor <span class="nav-badge">AI</span></button>
+
+    <div class="sidebar-user">
+      <div class="user-av">AH</div>
+      <div>
+        <div class="user-name">Ahmed</div>
+        <div class="user-plan">Free plan</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main" id="mainContent">
+
+    <!-- WELCOME BANNER -->
+    <div class="welcome-banner fade-up">
+      <div class="wb-text">
+        <h2>Welcome back, <em>Ahmed</em> 👋</h2>
+        <p>Ready to explore your next career move? Fill in your profile and generate your personalized roadmap.</p>
+      </div>
+      <div class="wb-action">
+        <button class="btn-generate" onclick="scrollToForm()">
+          ✨ Generate My Career Path
+        </button>
+      </div>
+    </div>
+
+    <!-- QUICK STATS -->
+    <div class="stats-row fade-up" style="animation-delay:0.1s">
+      <div class="stat-card"><div class="s-label">Careers Explored</div><div class="s-val green">0</div><div class="s-sub">Run your first analysis</div></div>
+      <div class="stat-card"><div class="s-label">Skills Identified</div><div class="s-val">0</div><div class="s-sub">Add your skills below</div></div>
+      <div class="stat-card"><div class="s-label">Roadmap Steps</div><div class="s-val blue">0</div><div class="s-sub">Generate a roadmap first</div></div>
+      <div class="stat-card"><div class="s-label">Projects Suggested</div><div class="s-val">0</div><div class="s-sub">Based on your goals</div></div>
+    </div>
+
+    <!-- INPUT FORM -->
+    <div class="form-card fade-up" id="inputForm" style="animation-delay:0.2s">
+      <div class="form-card-header">
+        <div>
+          <h3>Your Career Profile</h3>
+          <p>Tell us about yourself so we can generate your personalized results</p>
+        </div>
+      </div>
+      <form class="form-grid" onsubmit="generateResults(event)">
+        <div class="fg">
+          <label>Major / Field of Study</label>
+          <input type="text" id="major" placeholder="e.g. Computer Science, Business, Biology" required/>
+        </div>
+        <div class="fg">
+          <label>Experience Level</label>
+          <select id="level" required>
+            <option value="">Select your level</option>
+            <option value="student">Current Student</option>
+            <option value="fresh_graduate">Fresh Graduate</option>
+            <option value="junior">Junior (1–2 years)</option>
+          </select>
+        </div>
+        <div class="fg full">
+          <label>Your Current Skills — press Enter to add</label>
+          <input type="text" id="skillInput" placeholder="e.g. Python, Excel, Communication..." onkeydown="addSkill(event)"/>
+          <div class="sk-tags" id="skillsTags"></div>
+        </div>
+        <div class="fg full">
+          <label>Interests</label>
+          <input type="text" id="interests" placeholder="e.g. AI, Finance, Design, Healthcare, Marketing..."/>
+        </div>
+        <div class="fg full">
+          <label>Career Goals</label>
+          <textarea id="goals" placeholder="e.g. I want to work in AI, preferably remotely. I enjoy problem-solving and working with data..."></textarea>
+        </div>
+        <div class="form-actions">
+          <span class="hint">Results generated instantly using AI</span>
+          <button type="submit" class="btn-primary">
+            ✨ Generate Results
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- LOADING STATE -->
+    <div class="loading-state" id="loadingState" style="display:none">
+      <div class="loading-spinner"></div>
+      <p>Analyzing your profile...</p>
+      <div class="load-step" id="loadStep">Finding best career matches</div>
+    </div>
+
+    <!-- RESULTS -->
+    <div class="results-section" id="resultsSection">
+
+      <!-- CAREER SUGGESTIONS -->
+      <div class="section-header">
+        <h3>🧭 Best Career Matches</h3>
+        <a href="#">View all</a>
+      </div>
+      <div class="career-cards" id="careerCards"></div>
+
+      <!-- SKILLS + ROADMAP -->
+      <div class="results-grid">
+        <div>
+          <div class="section-header"><h3>🔍 Skills Gap</h3></div>
+          <div class="skills-gap-card" id="skillsGapCard"></div>
+        </div>
+        <div>
+          <div class="section-header"><h3>🗺️ Learning Roadmap</h3></div>
+          <div class="roadmap-card" id="roadmapCard"></div>
+        </div>
+      </div>
+
+      <!-- PROJECT IDEAS -->
+      <div class="section-header"><h3>💡 Project Ideas</h3></div>
+      <div class="projects-card" id="projectsCard" style="margin-bottom:2rem"></div>
+
+      <!-- CHAT ADVISOR -->
+      <div class="section-header"><h3>💬 Career Advisor</h3></div>
+      <div class="chat-card">
+        <div class="chat-header">
+          <div class="chat-dot"></div>
+          <span class="chat-title">AI Career Advisor</span>
+          <span class="chat-sub">Ask anything about your career path</span>
+        </div>
+        <div class="chat-messages" id="chatMessages">
+          <div class="msg ai">
+            <div class="msg-av ai">AI</div>
+            <div class="msg-bubble">Hi! I've analyzed your profile and generated your career suggestions above. Feel free to ask me anything — about the careers, what skills to learn first, or how to get your first job. I'm here to help! 🎯</div>
+          </div>
+        </div>
+        <div class="chat-input-row">
+          <input type="text" class="chat-input" id="chatInput" placeholder="Ask anything about your career path..." onkeydown="sendChat(event)"/>
+          <button class="btn-send" onclick="sendChatClick()">Send</button>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+  const SUPABASE_URL = 'https://pjgokiushwwnacfnfanr.supabase.co'
+  const SUPABASE_KEY =  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBqZ29raXVzaHd3bmFjZm5mYW5yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUyNzgxODIsImV4cCI6MjA5MDg1NDE4Mn0.EKHOgbK1Yq4HSfs5ealk8L6gM0AoeWXHxPh38Qrl2_8'
+
+  const { createClient } = supabase
+  const client = createClient(SUPABASE_URL, SUPABASE_KEY)
+
+  // Protect dashboard - redirect to login if not authenticated
+  async function checkAuth() {
+    const { data: { session } } = await client.auth.getSession()
+
+    if (!session) {
+      window.location.href = 'login.html'
+      return
+    }
+
+    // Show user info
+    const user = session.user
+    const name = user.user_metadata?.full_name || user.email
+    const initials = name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
+    const avatar = user.user_metadata?.avatar_url
+
+    // Update name in welcome banner
+    document.querySelector('.wb-text h2').innerHTML =
+      `Welcome back, <em>${name.split(' ')[0]}</em>`
+
+    // Update sidebar user info
+    document.querySelector('.user-name').textContent = name.split(' ')[0]
+
+    // Update avatar initials
+    document.querySelectorAll('.user-av, nav div[style*="border-radius:50%"]')
+      .forEach(el => el.textContent = initials)
+  }
+  checkAuth()
+
+  // Sign out
+  async function signOut() {
+    await client.auth.signOut()
+    window.location.href = 'login.html'
+  }
+
+  // ── SKILL TAGS ──────────────────────────────────────────────────────────────
+  const skills = []
+
+  function addSkill(event) {
+    if (event.key !== 'Enter') return
+    event.preventDefault()
+    const input = document.getElementById('skillInput')
+    const val = input.value.trim()
+    if (!val || skills.includes(val)) { input.value = ''; return }
+    skills.push(val)
+    renderTags()
+    input.value = ''
+  }
+
+  function removeSkill(skill) {
+    const idx = skills.indexOf(skill)
+    if (idx !== -1) skills.splice(idx, 1)
+    renderTags()
+  }
+
+  function renderTags() {
+    const container = document.getElementById('skillsTags')
+    container.innerHTML = skills.map(s =>
+      `<span class="sk-tag" onclick="removeSkill('${s}')">${s} ✕</span>`
+    ).join('')
+  }
+
+  // ── NAVIGATION ──────────────────────────────────────────────────────────────
+  function showSection(section) {
+    document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'))
+    const clicked = event.currentTarget
+    clicked.classList.add('active')
+
+    const results = document.getElementById('resultsSection')
+    if (['careers', 'roadmap', 'skills', 'projects', 'compare', 'timeline', 'chat'].includes(section)) {
+      if (results.classList.contains('visible')) {
+        const map = {
+          careers: '#careerCards',
+          roadmap: '#roadmapCard',
+          skills: '#skillsGapCard',
+          projects: '#projectsCard',
+          chat: '.chat-card',
+        }
+        const target = map[section]
+        if (target) {
+          const el = document.querySelector(target)
+          if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+          return
+        }
+      }
+    }
+    document.getElementById('inputForm').scrollIntoView({ behavior: 'smooth' })
+  }
+
+  function scrollToForm() {
+    document.getElementById('inputForm').scrollIntoView({ behavior: 'smooth' })
+  }
+
+  // ── GENERATE RESULTS ────────────────────────────────────────────────────────
+  let careerContext = ''
+
+  async function generateResults(event) {
+    event.preventDefault()
+
+    const major = document.getElementById('major').value.trim()
+    const level = document.getElementById('level').value
+    const interests = document.getElementById('interests').value.trim()
+    const goals = document.getElementById('goals').value.trim()
+
+    if (!major || !level) return
+
+    // Get auth token
+    const { data: { session } } = await client.auth.getSession()
+    if (!session) { window.location.href = 'login.html'; return }
+    const token = session.access_token
+
+    // Show loading
+    document.getElementById('inputForm').style.display = 'none'
+    document.getElementById('loadingState').style.display = 'block'
+    document.getElementById('resultsSection').classList.remove('visible')
+
+    // Animate load steps
+    const steps = [
+      'Finding best career matches…',
+      'Analysing skills gap…',
+      'Building your learning roadmap…',
+      'Generating project ideas…',
+    ]
+    let stepIdx = 0
+    const stepEl = document.getElementById('loadStep')
+    const stepTimer = setInterval(() => {
+      stepIdx = (stepIdx + 1) % steps.length
+      stepEl.textContent = steps[stepIdx]
+    }, 4000)
+
+    try {
+      const body = {
+        major,
+        skills: skills.length ? skills : ['None listed'],
+        interests: interests ? interests.split(',').map(s => s.trim()).filter(Boolean) : ['General'],
+        goals: goals || 'Find a good career',
+        experience_level: level,
+      }
+
+      const res = await fetch('http://127.0.0.1:8000/api/v1/career/generate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify(body),
+      })
+
+      clearInterval(stepTimer)
+
+      if (res.status === 401) { window.location.href = 'login.html'; return }
+      if (!res.ok) throw new Error(`Server error ${res.status}`)
+
+      const data = await res.json()
+      careerContext = data.summary || ''
+
+      renderResults(data)
+      updateStats(data)
+
+    } catch (err) {
+      clearInterval(stepTimer)
+      alert(`Something went wrong: ${err.message}`)
+      document.getElementById('inputForm').style.display = 'block'
+    } finally {
+      clearInterval(stepTimer)
+      document.getElementById('loadingState').style.display = 'none'
+    }
+  }
+
+  // ── RENDER RESULTS ──────────────────────────────────────────────────────────
+  function renderResults(data) {
+    renderCareerCards(data.career_matches || [])
+    renderSkillsGap(data.skills_gap || [])
+    renderRoadmap(data.roadmap || [])
+    renderProjects(data.project_ideas || [])
+
+    if (data.summary) {
+      document.querySelector('.wb-text p').textContent = data.summary
+    }
+
+    document.getElementById('resultsSection').classList.add('visible')
+    document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth' })
+  }
+
+  function scoreClass(score) {
+    return score >= 75 ? 'high' : 'mid'
+  }
+
+  function chip(text) {
+    return `<span class="chip">${text}</span>`
+  }
+
+  function renderCareerCards(careers) {
+    const container = document.getElementById('careerCards')
+    container.innerHTML = careers.map(c => `
+      <div class="career-card">
+        <div class="cc-score ${scoreClass(c.match_score)}">${c.match_score}%</div>
+        <div class="cc-info">
+          <div class="cc-title">${c.title}</div>
+          <div class="cc-desc">${c.description}</div>
+          <div class="cc-chips">${(c.required_skills || []).map(chip).join('')}</div>
+          <div class="cc-desc" style="margin-top:0.4rem;font-style:italic">${c.why_it_fits}</div>
+        </div>
+        <div class="cc-bar">
+          <div class="cc-bar-label">${c.match_score}%</div>
+          <div class="cc-bar-track"><div class="cc-bar-fill" style="width:${c.match_score}%"></div></div>
+        </div>
+        <span class="cc-arrow">›</span>
+      </div>
+    `).join('')
+  }
+
+  function statusBadge(status) {
+    const map = {
+      have: `<span class="chip" style="background:#D5F5E3;color:#1E8449;border-color:#A9DFBF">✓ Have</span>`,
+      missing: `<span class="chip" style="background:#FADBD8;color:#C0392B;border-color:#F1948A">✗ Missing</span>`,
+      partial: `<span class="chip" style="background:#FEF9E7;color:#9A7D0A;border-color:#F9E79F">~ Partial</span>`,
+    }
+    return map[status] || `<span class="chip">${status}</span>`
+  }
+
+  function renderSkillsGap(items) {
+    const container = document.getElementById('skillsGapCard')
+    container.innerHTML = items.map(s => `
+      <div class="sg-row">
+        <div>
+          <div class="sg-skill">${s.skill_name}</div>
+          <div class="sg-priority">Priority: ${s.priority}</div>
+        </div>
+        ${statusBadge(s.status)}
+      </div>
+    `).join('')
+  }
+
+  function renderRoadmap(steps) {
+    const container = document.getElementById('roadmapCard')
+    container.innerHTML = steps.map((s, i) => `
+      <div class="rm-step">
+        <div class="rm-num">${s.step_order}</div>
+        <div class="rm-content">
+          <div class="rm-title">${s.title}</div>
+          <div class="rm-meta">
+            <span>${s.description}</span>
+          </div>
+          <div class="rm-meta" style="margin-top:0.25rem">
+            <span>⏱ ${s.duration_weeks} week${s.duration_weeks !== 1 ? 's' : ''}</span>
+          </div>
+        </div>
+      </div>
+    `).join('')
+  }
+
+  function difficultyColor(diff) {
+    const map = { beginner: '#1E8449', intermediate: '#935116', advanced: '#C0392B' }
+    return map[(diff || '').toLowerCase()] || '#555'
+  }
+
+  function renderProjects(projects) {
+    const container = document.getElementById('projectsCard')
+    container.innerHTML = projects.map(p => `
+      <div class="proj-item">
+        <div class="proj-title">
+          ${p.title}
+          <span style="font-size:0.72rem;font-weight:400;margin-left:0.5rem;color:${difficultyColor(p.difficulty)}">${p.difficulty}</span>
+        </div>
+        <div class="proj-desc">${p.description}</div>
+        <div class="proj-chips">${(p.skills_targeted || []).map(chip).join('')}</div>
+      </div>
+    `).join('')
+  }
+
+  function updateStats(data) {
+    const stats = document.querySelectorAll('.stat-card')
+    if (stats[0]) {
+      stats[0].querySelector('.s-val').textContent = (data.career_matches || []).length
+      stats[0].querySelector('.s-sub').textContent = 'Career matches found'
+    }
+    if (stats[1]) {
+      stats[1].querySelector('.s-val').textContent = (data.skills_gap || []).length
+      stats[1].querySelector('.s-sub').textContent = 'Skills analysed'
+    }
+    if (stats[2]) {
+      stats[2].querySelector('.s-val').textContent = (data.roadmap || []).length
+      stats[2].querySelector('.s-sub').textContent = 'Roadmap steps'
+    }
+    if (stats[3]) {
+      stats[3].querySelector('.s-val').textContent = (data.project_ideas || []).length
+      stats[3].querySelector('.s-sub').textContent = 'Project ideas'
+    }
+  }
+
+  // ── CHAT ADVISOR ─────────────────────────────────────────────────────────────
+  const chatHistory = []
+
+  async function sendChatClick() {
+    const input = document.getElementById('chatInput')
+    const text = input.value.trim()
+    if (!text) return
+    input.value = ''
+    await sendChatMessage(text)
+  }
+
+  async function sendChat(event) {
+    if (event.key !== 'Enter') return
+    await sendChatClick()
+  }
+
+  function appendChatBubble(role, text) {
+    const container = document.getElementById('chatMessages')
+    const isUser = role === 'user'
+    const div = document.createElement('div')
+    div.className = `msg ${isUser ? 'user' : 'ai'}`
+    div.innerHTML = `
+      <div class="msg-av ${isUser ? 'user' : 'ai'}">${isUser ? 'You' : 'AI'}</div>
+      <div class="msg-bubble">${text}</div>
+    `
+    container.appendChild(div)
+    container.scrollTop = container.scrollHeight
+  }
+
+  async function sendChatMessage(text) {
+    appendChatBubble('user', text)
+    chatHistory.push({ role: 'user', content: text })
+
+    const { data: { session } } = await client.auth.getSession()
+    if (!session) { window.location.href = 'login.html'; return }
+
+    // Typing indicator
+    const container = document.getElementById('chatMessages')
+    const typing = document.createElement('div')
+    typing.className = 'msg ai'
+    typing.id = 'typingIndicator'
+    typing.innerHTML = `<div class="msg-av ai">AI</div><div class="msg-bubble" style="color:var(--mid)">Thinking…</div>`
+    container.appendChild(typing)
+    container.scrollTop = container.scrollHeight
+
+    try {
+      const res = await fetch('http://127.0.0.1:8000/api/v1/chat/message', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({
+          messages: chatHistory,
+          career_context: careerContext,
+        }),
+      })
+
+      typing.remove()
+
+      if (!res.ok) throw new Error(`Server error ${res.status}`)
+      const data = await res.json()
+      const reply = data.reply || 'Sorry, I could not generate a response.'
+      chatHistory.push({ role: 'assistant', content: reply })
+      appendChatBubble('assistant', reply)
+
+    } catch (err) {
+      typing.remove()
+      appendChatBubble('assistant', `Sorry, something went wrong: ${err.message}`)
+    }
+  }
+</script>
+</body>
+</html>
